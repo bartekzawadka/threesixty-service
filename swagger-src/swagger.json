@@ -1,0 +1,302 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "ThreeSixty images API service definition",
+    "version" : "1.0.0",
+    "title" : "ThreeSixty Service",
+    "contact" : {
+      "email" : "kontakt@bartoszzawadka.pl"
+    },
+    "license" : {
+      "name" : "Apache 2.0",
+      "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "tags" : [ {
+    "name" : "images",
+    "description" : "Images calls"
+  }, {
+    "name" : "chunks",
+    "description" : "Image segments calls"
+  } ],
+  "paths" : {
+    "/images" : {
+      "x-swagger-router-controller" : "Chunks",
+      "get" : {
+        "tags" : [ "images" ],
+        "summary" : "Searches images",
+        "operationId" : "getImages",
+        "description" : "By passing in the appropriate options, you can search for\navailable images in the system\n",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "skip",
+          "description" : "number of records to skip for pagination",
+          "type" : "integer",
+          "format" : "int32",
+          "minimum" : 0
+        }, {
+          "in" : "query",
+          "name" : "limit",
+          "description" : "maximum number of records to return",
+          "type" : "integer",
+          "format" : "int32",
+          "minimum" : 0,
+          "maximum" : 50
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "search results matching criteria",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/Image"
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          }
+        }
+      }
+    },
+    "/image/{id}" : {
+      "x-swagger-router-controller" : "Chunks",
+      "get" : {
+        "tags" : [ "images" ],
+        "summary" : "Find image by id",
+        "description" : "Returns a single image info with chunks ids",
+        "operationId" : "getImageById",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of image to return",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/Image"
+            }
+          },
+          "400" : {
+            "description" : "Invalid ID supplied"
+          },
+          "404" : {
+            "description" : "Image not found"
+          }
+        }
+      }
+    },
+    "/image" : {
+      "x-swagger-router-controller" : "Chunks",
+      "post" : {
+        "tags" : [ "images" ],
+        "summary" : "Insert new image",
+        "description" : "",
+        "operationId" : "addImage",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "description" : "Image data for new item",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Image"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/ImageInsertElement"
+            }
+          },
+          "400" : {
+            "description" : "Invalid image data"
+          }
+        }
+      }
+    },
+    "/chunk/{id}" : {
+      "x-swagger-router-controller" : "Chunks",
+      "get" : {
+        "tags" : [ "chunks" ],
+        "summary" : "Find chunk by id",
+        "description" : "Returns a single chunk of 360 image by ID",
+        "operationId" : "getChunkById",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of image chunk to return",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/Chunk"
+            }
+          },
+          "400" : {
+            "description" : "Invalid ID supplied"
+          },
+          "404" : {
+            "description" : "Image chunk not found"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "chunks" ],
+        "summary" : "Add chunk to image",
+        "description" : "Insert new chunk of specified image",
+        "operationId" : "addChunk",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "description" : "Chunk object data to be added to specified image",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Chunk"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "description" : "ID of existing image",
+          "type" : "string",
+          "required" : true
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/Chunk"
+            }
+          },
+          "405" : {
+            "description" : "Invalid input"
+          },
+          "400" : {
+            "description" : "Invalid image ID"
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "ImageInsertElement" : {
+      "type" : "object",
+      "required" : [ "name", "chunkWidth", "chunkHeight" ],
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "example" : "Sample image"
+        },
+        "chunkWidth" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 640
+        },
+        "chunkHeight" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 480
+        }
+      }
+    },
+    "Image" : {
+      "type" : "object",
+      "required" : [ "name", "chunkWidth", "chunkHeight" ],
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "example" : "58a336a28c936621c8c7e0dc"
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "Sample image"
+        },
+        "createdAt" : {
+          "type" : "string",
+          "format" : "int32",
+          "example" : "2016-08-29T09:12:33.001Z"
+        },
+        "chunksCount" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 15
+        },
+        "chunkWidth" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 640
+        },
+        "chunkHeight" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 480
+        },
+        "chunks" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ChunkListElement"
+          }
+        }
+      }
+    },
+    "ChunkListElement" : {
+      "type" : "object",
+      "required" : [ "index" ],
+      "properties" : {
+        "index" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 43
+        },
+        "id" : {
+          "type" : "string",
+          "example" : "58a336a28c936621c8c7e0dc"
+        },
+        "mimeType" : {
+          "type" : "string",
+          "example" : "image/png"
+        }
+      }
+    },
+    "Chunk" : {
+      "type" : "object",
+      "required" : [ "index" ],
+      "properties" : {
+        "index" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 43
+        },
+        "id" : {
+          "type" : "string",
+          "example" : "58a336a28c936621c8c7e0dc"
+        },
+        "mimeType" : {
+          "type" : "string",
+          "example" : "image/png"
+        },
+        "data" : {
+          "type" : "string",
+          "format" : "base64",
+          "example" : "SWRlYWx5IHNhIGphayBnd2l..."
+        }
+      }
+    }
+  },
+  "host" : "localhost",
+  "basePath" : "/",
+  "schemes" : [ "http" ]
+}
