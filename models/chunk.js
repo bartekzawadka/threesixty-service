@@ -1,14 +1,33 @@
 'use strict';
 
-var mongoose = require('mongoose');
+module.exports = function(sequelize, DataTypes) {
+    var Chunk = sequelize.define("Chunk", {
+        index: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        mimeType: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        data: {
+            type: DataTypes.TEXT,
+            allowNull: false
+        }
+    }, {
+        timestamps: false,
+        updatedAt: false,
+        createdAt: false
+    });
 
-var chunkSchema = mongoose.Schema({
-    index: {type: Number, required: true},
-    mimeType: {type: String, required: false},
-    data: {type: String, required: true}
-}, {
-    collection: 'chunks'
-});
+    Chunk.associate = function(models) {
+      Chunk.belongsTo(models.Image, {
+          onDelete: "CASCADE",
+          foreignKey: {
+              allowNull: false
+          }
+      });
+    };
 
-var Chunk = mongoose.model('Chunk', chunkSchema);
-module.exports = Chunk;
+    return Chunk;
+};

@@ -1,7 +1,6 @@
 'use strict';
 var path = require('path');
-var Chunks = require(path.join(__dirname, '..', 'models', 'chunk'));
-var Images = require(path.join(__dirname, '..', 'models', 'image'));
+var models = require(path.join(__dirname, '..', 'models'));
 var utils = require(path.join(__dirname, 'utils'));
 
 exports.addChunk = function (args, res, next) {
@@ -40,40 +39,33 @@ exports.addChunk = function (args, res, next) {
     }
 
     var item = {
+        ImageId: args.id.value,
         index: args.body.originalValue.index,
         mimeType: args.body.originalValue.mimeType,
         data: args.body.originalValue.data
     };
 
-    Images.findById(args.id.value, function(err, image){
-        if (err) {
-            utils.sendError(res, 400, err);
-            return;
-        }
-
-        if(!image){
-            utils.sendError(res, 400, "Could not find image by specified ID");
-            return;
-        }
-
-        Chunks.create(item, function(error, chunk) {
-            if (error) {
-                utils.sendError(res, 405, error);
+    models.Image.findById(args.id.value).then(function(image){
+            if(!image){
+                utils.sendError(res, 400, "Could not find image by specified ID");
                 return;
             }
 
-            image.chunks.push(chunk._id);
-            image.save();
+            models.Chunk.create(item).then(function(chunk){
 
-            var result = {
-                id: chunk._id,
-                mimeType: chunk.mimeType,
-                index: chunk.index,
-                data: chunk.data
-            };
+                var result = chunk;
+                // result.data = undefined;
 
-            utils.sendJson(res, result);
-        });
+                utils.sendJson(res, result);
+            }).catch(function(error){
+                if (error) {
+                    utils.sendError(res, 405, error);
+                }
+            });
+    }).catch(function(err){
+            if (err) {
+                utils.sendError(res, 400, err);
+            }
     });
 };
 
@@ -91,26 +83,17 @@ exports.getChunkById = function (args, res) {
         return;
     }
 
-    Chunks.findById(args.id.value)
-        .select('_id index mimeType data').exec(function (error, item) {
-        if (error) {
-            utils.sendError(res, 400, error);
-            return;
-        }
-
-        if(!item) {
+    models.Chunk.findById(args.id.value).then(function(chunk){
+        if(!chunk) {
             utils.sendError(res, 404, "Could not find chunk by specified ID");
             return;
         }
 
-        var result = {
-            id: item._id,
-            index: item.index,
-            mimeType: item.mimeType,
-            data: item.data
-        };
-
-        utils.sendJson(res, result);
+        utils.sendJson(res, chunk);
+    }).catch(function(error){
+        if (error) {
+            utils.sendError(res, 400, error);
+        }
     });
 };
 
