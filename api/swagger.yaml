@@ -251,5 +251,5 @@ definitions:
         example: "image/png"
       data:
         type: "string"
-        format: "base64"
+        format: "binary"
         example: "SWRlYWx5IHNhIGphayBnd2l..."
