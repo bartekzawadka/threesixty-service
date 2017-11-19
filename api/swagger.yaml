@@ -191,7 +191,6 @@ definitions:
     required:
     - "chunkHeight"
     - "chunkWidth"
-    - "name"
     properties:
       id:
         type: "string"
