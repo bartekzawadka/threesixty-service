@@ -3,7 +3,7 @@ var path = require('path');
 var Images = require(path.join(__dirname, '..', 'models', 'image'));
 var utils = require(path.join(__dirname, 'utils'));
 
-exports.addImage = function(req, res, next) {
+exports.addImage = function(req, res) {
   /**
    * Insert new image
    * 
@@ -43,11 +43,11 @@ exports.addImage = function(req, res, next) {
           name: image.name
         };
 
-        utils.sendJson(res, image);
+        utils.sendJson(res, result);
     });
 };
 
-exports.getImageById = function(req, res, next) {
+exports.getImageById = function(req, res) {
   /**
    * Find image by id
    * Returns a single image info with chunks ids
@@ -82,7 +82,7 @@ exports.getImageById = function(req, res, next) {
         });
 };
 
-exports.getImages = function(req, res, next) {
+exports.getImages = function(req, res) {
   /**
    * Searches images
    * By passing in the appropriate options, you can search for available images in the system 
